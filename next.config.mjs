@@ -33,11 +33,6 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-
-  // (optional but common)
-  eslint: {
-    ignoreDuringBuilds: true,
-  }
 };
 
 export default nextConfig;
