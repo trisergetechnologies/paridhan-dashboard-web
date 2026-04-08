@@ -9,7 +9,7 @@
 //         src={logo}
 //         fill
 //         className="dark:hidden"
-//         alt="NextAdmin logo"
+//         alt="Paridhan"
 //         role="presentation"
 //         quality={100}
 //       />
@@ -18,7 +18,7 @@
 //         src={darkLogo}
 //         fill
 //         className="hidden dark:block"
-//         alt="NextAdmin logo"
+//         alt="Paridhan"
 //         role="presentation"
 //         quality={100}
 //       />

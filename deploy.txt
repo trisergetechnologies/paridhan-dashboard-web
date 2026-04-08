@@ -1,0 +1,2 @@
+cd ~/apps/paridhan/paridhan-dashboard-web
+PORT=4603 pm2 start npm --name "paridhan-dashboard" -- start

@@ -24,12 +24,11 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "api.colio.in",
-      }
+        hostname: "ik.imagekit.io",
+      },
     ]
   },
 
-  // 👇 ADD THIS
   typescript: {
     ignoreBuildErrors: true,
   },
