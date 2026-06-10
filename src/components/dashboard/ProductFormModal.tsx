@@ -18,6 +18,20 @@ export type SellerProductRow = {
 
 type Category = { _id: string; name: string; slug: string };
 
+const SAREE_FABRICS = ["Silk", "Cotton", "Georgette", "Organza", "Linen", "Chiffon", "Banarasi", "Kanjivaram"];
+const SAREE_COLORS = [
+  "Maroon",
+  "Gold",
+  "Red",
+  "Green",
+  "Navy",
+  "Pink",
+  "Ivory",
+  "Black",
+  "Peach",
+  "Royal Blue",
+];
+
 type VariantFormRow = {
   publicId: string;
   attributes: { name: string; value: string }[];
@@ -33,8 +47,8 @@ function emptyVariantRow(): VariantFormRow {
   return {
     publicId: "",
     attributes: [
-      { name: "Option", value: "" },
-      { name: "", value: "" },
+      { name: "Blouse", value: "" },
+      { name: "Border", value: "" },
     ],
     sku: "",
     price: "",
@@ -108,6 +122,10 @@ export function ProductFormModal({
   const [isActive, setIsActive] = useState(true);
   const [images, setImages] = useState<ProductImagePayload[]>([]);
   const [variants, setVariants] = useState<VariantFormRow[]>([]);
+  const [fabric, setFabric] = useState("");
+  const [color, setColor] = useState("");
+  const [blouseIncluded, setBlouseIncluded] = useState(true);
+  const [length, setLength] = useState("5.5m");
   const [uploading, setUploading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [dragActive, setDragActive] = useState(false);
@@ -133,6 +151,10 @@ export function ProductFormModal({
       setIsActive(true);
       setImages([]);
       setVariants([]);
+      setFabric("");
+      setColor("");
+      setBlouseIncluded(true);
+      setLength("5.5m");
       return;
     }
     let cancelled = false;
@@ -164,6 +186,10 @@ export function ProductFormModal({
       );
       const vars = (d.variants as Record<string, unknown>[]) || [];
       setVariants(vars.length ? vars.map(mapApiVariantToRow) : []);
+      setFabric(d.fabric != null ? String(d.fabric) : "");
+      setColor(d.color != null ? String(d.color) : "");
+      setBlouseIncluded(d.blouseIncluded !== false);
+      setLength(d.length != null ? String(d.length) : "5.5m");
     })();
     return () => {
       cancelled = true;
@@ -270,6 +296,10 @@ export function ProductFormModal({
       discountPercentage: discountPercentage.trim() !== "" ? Number(discountPercentage) : null,
       gstPercent: gstPercent.trim() !== "" ? Number(gstPercent) : null,
       hsnCode: hsnCode.trim() || null,
+      fabric: fabric.trim() || null,
+      color: color.trim() || null,
+      blouseIncluded,
+      length: length.trim() || "5.5m",
     };
     const url = initial ? `/seller/products/${initial._id}` : "/seller/products";
     const res = await apiFetch(url, {
@@ -315,6 +345,62 @@ export function ProductFormModal({
               className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 dark:border-slate-600 dark:bg-slate-950 dark:text-white"
             />
           </label>
+        </section>
+
+        <section className="space-y-4 rounded-2xl border border-slate-200/80 bg-white p-4 dark:border-slate-700 dark:bg-slate-950/40 sm:p-5">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">Saree details</h3>
+          <p className="text-xs text-slate-500">
+            Fabric, colour, and length appear on the product page and in search filters for customers.
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <label className="block text-sm">
+              <span className="text-slate-700 dark:text-slate-300">Fabric</span>
+              <input
+                list="saree-fabrics"
+                value={fabric}
+                onChange={(e) => setFabric(e.target.value)}
+                placeholder="e.g. Silk"
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 dark:border-slate-600 dark:bg-slate-950 dark:text-white"
+              />
+              <datalist id="saree-fabrics">
+                {SAREE_FABRICS.map((f) => (
+                  <option key={f} value={f} />
+                ))}
+              </datalist>
+            </label>
+            <label className="block text-sm">
+              <span className="text-slate-700 dark:text-slate-300">Colour</span>
+              <input
+                list="saree-colors"
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+                placeholder="e.g. Maroon"
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 dark:border-slate-600 dark:bg-slate-950 dark:text-white"
+              />
+              <datalist id="saree-colors">
+                {SAREE_COLORS.map((c) => (
+                  <option key={c} value={c} />
+                ))}
+              </datalist>
+            </label>
+            <label className="block text-sm">
+              <span className="text-slate-700 dark:text-slate-300">Saree length</span>
+              <input
+                value={length}
+                onChange={(e) => setLength(e.target.value)}
+                placeholder="5.5m"
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 dark:border-slate-600 dark:bg-slate-950 dark:text-white"
+              />
+            </label>
+            <label className="flex items-end gap-2 pb-2.5 text-sm text-slate-700 dark:text-slate-300">
+              <input
+                type="checkbox"
+                checked={blouseIncluded}
+                onChange={(e) => setBlouseIncluded(e.target.checked)}
+              />
+              Blouse piece included
+            </label>
+          </div>
         </section>
 
         <section className="space-y-4 rounded-2xl border border-slate-200/80 bg-white p-4 dark:border-slate-700 dark:bg-slate-950/40 sm:p-5">
@@ -520,13 +606,13 @@ export function ProductFormModal({
                     {row.attributes.map((attr, aIdx) => (
                       <div key={aIdx} className="flex flex-wrap gap-2 sm:flex-nowrap">
                         <input
-                          placeholder="Label (e.g. Size)"
+                          placeholder="Label (e.g. Blouse)"
                           value={attr.name}
                           onChange={(e) => updateVariantAttr(vIdx, aIdx, "name", e.target.value)}
                           className="min-w-[100px] flex-1 rounded-lg border border-slate-200 px-2 py-1.5 text-sm dark:border-slate-600 dark:bg-slate-950 dark:text-white"
                         />
                         <input
-                          placeholder="Value (e.g. M)"
+                          placeholder="Value (e.g. Unstitched)"
                           value={attr.value}
                           onChange={(e) => updateVariantAttr(vIdx, aIdx, "value", e.target.value)}
                           className="min-w-[100px] flex-1 rounded-lg border border-slate-200 px-2 py-1.5 text-sm dark:border-slate-600 dark:bg-slate-950 dark:text-white"

@@ -1,5 +1,6 @@
 "use client";
 
+import GoogleSigninButton from "@/components/Auth/GoogleSigninButton";
 import { useAuth, type DashboardRole } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -118,6 +119,17 @@ export default function Signin() {
           >
             {loading ? "Signing in..." : "Sign in"}
           </button>
+
+          <div className="relative my-5">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-stroke dark:border-dark-3" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white/90 px-2 text-body-color dark:bg-dark/90">or</span>
+            </div>
+          </div>
+
+          <GoogleSigninButton text="Sign in" role={requestedRole} />
         </form>
       </div>
     </div>

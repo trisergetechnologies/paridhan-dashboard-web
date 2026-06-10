@@ -3,7 +3,7 @@
   "version": "1.2.2",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -16,6 +16,7 @@
     "dayjs": "^1.11.13",
     "flatpickr": "^4.6.13",
     "js-cookie": "^3.0.5",
+    "jspdf": "^4.2.1",
     "jsvectormap": "^1.6.0",
     "lucide-react": "^0.563.0",
     "next": "16.0.10",

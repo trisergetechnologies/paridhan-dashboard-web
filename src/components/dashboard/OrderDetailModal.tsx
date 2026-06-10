@@ -1,5 +1,6 @@
 "use client";
 
+import { DownloadShippingLabelButton } from "@/components/dashboard/DownloadShippingLabelButton";
 import { DashboardModal } from "@/components/ui/DashboardModal";
 import { apiJson } from "@/lib/api/client";
 import { useEffect, useState } from "react";
@@ -40,10 +41,14 @@ type OrderDoc = {
 export function OrderDetailModal({
   orderId,
   ordersPath,
+  sellerId,
+  sellerName,
   onClose,
 }: {
   orderId: string;
   ordersPath: "/admin/orders" | "/seller/orders";
+  sellerId?: string;
+  sellerName?: string;
   onClose: () => void;
 }) {
   const [order, setOrder] = useState<OrderDoc | null>(null);
@@ -73,6 +78,21 @@ export function OrderDetailModal({
       {!order && !err && <p className="text-sm text-slate-500">Loading…</p>}
       {order && (
         <div className="space-y-6 text-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-dashed border-primary/30 bg-primary/5 px-4 py-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-primary">Shipping label</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400">
+                PDF with delivery address, product details, and price — ready to print on your courier packet.
+              </p>
+            </div>
+            <DownloadShippingLabelButton
+              orderId={orderId}
+              ordersPath={ordersPath}
+              sellerId={sellerId}
+              sellerName={sellerName}
+            />
+          </div>
+
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 dark:border-slate-700 dark:bg-slate-800/50">
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Order</p>

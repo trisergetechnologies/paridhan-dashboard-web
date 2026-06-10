@@ -10,6 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { DownloadShippingLabelButton } from "@/components/dashboard/DownloadShippingLabelButton";
+import { useAuth } from "@/context/AuthContext";
 import { apiFetch, apiJson } from "@/lib/api/client";
 import { useCallback, useEffect, useState } from "react";
 
@@ -28,6 +30,7 @@ type OrderRow = {
 };
 
 export default function SellerOrdersPage() {
+  const { user } = useAuth();
   const [items, setItems] = useState<OrderRow[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
@@ -157,6 +160,13 @@ export default function SellerOrdersPage() {
                   </TableCell>
                   <TableCell className="pr-5 text-right">
                     <div className="flex flex-wrap justify-end gap-2">
+                      <DownloadShippingLabelButton
+                        orderId={o._id}
+                        ordersPath="/seller/orders"
+                        sellerId={user?._id}
+                        sellerName={user?.name}
+                        variant="link"
+                      />
                       <button
                         type="button"
                         className="text-sm font-medium text-primary hover:underline"
@@ -207,6 +217,8 @@ export default function SellerOrdersPage() {
         <OrderDetailModal
           orderId={detailId}
           ordersPath="/seller/orders"
+          sellerId={user?._id}
+          sellerName={user?.name}
           onClose={() => setDetailId(null)}
         />
       )}

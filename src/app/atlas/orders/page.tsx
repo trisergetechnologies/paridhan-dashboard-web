@@ -1,6 +1,7 @@
 "use client";
 
 import { RequireRole } from "@/components/Auth/RequireRole";
+import { DownloadShippingLabelButton } from "@/components/dashboard/DownloadShippingLabelButton";
 import { OrderDetailModal } from "@/components/dashboard/OrderDetailModal";
 import {
   Table,
@@ -152,6 +153,11 @@ export default function AdminOrdersPage() {
                   </TableCell>
                   <TableCell className="pr-5 text-right">
                     <div className="flex flex-wrap justify-end gap-2">
+                      <DownloadShippingLabelButton
+                        orderId={o._id}
+                        ordersPath="/admin/orders"
+                        variant="link"
+                      />
                       <button
                         type="button"
                         className="text-sm font-medium text-primary hover:underline"
