@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { API_URL, apiFetch, apiJson } from "@/lib/api/client";
+import { apiFetch, apiJson, getApiUrl } from "@/lib/api/client";
 import { useCallback, useEffect, useState } from "react";
 
 export default function SellerProductsPage() {
@@ -25,7 +25,7 @@ export default function SellerProductsPage() {
 
   const loadCategories = useCallback(async () => {
     try {
-      const res = await fetch(`${API_URL}/public/categories`);
+      const res = await fetch(`${getApiUrl()}/public/categories`);
       const json = await res.json();
       if (json.success && json.data?.items) setCategories(json.data.items);
     } catch {

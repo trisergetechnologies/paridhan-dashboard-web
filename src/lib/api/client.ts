@@ -1,6 +1,9 @@
+import { getDashboardApiBase } from "@/lib/apiBase";
 import { clearTokens, getAccessToken, getRefreshToken, setTokens } from "./sessionTokens";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+export function getApiUrl(): string {
+  return getDashboardApiBase();
+}
 
 const DASHBOARD_HEADERS = {
   "Content-Type": "application/json",
@@ -13,7 +16,7 @@ async function doRefresh(): Promise<boolean> {
   const refresh = getRefreshToken();
   if (!refresh) return false;
   try {
-    const res = await fetch(`${API_URL}/auth/refresh`, {
+    const res = await fetch(`${getDashboardApiBase()}/auth/refresh`, {
       method: "POST",
       headers: DASHBOARD_HEADERS,
       body: JSON.stringify({ refreshToken: refresh }),
@@ -58,7 +61,8 @@ export async function apiFetch<T = unknown>(
     headers.set("Content-Type", "application/json");
   }
 
-  const url = path.startsWith("http") ? path : `${API_URL}${path.startsWith("/") ? "" : "/"}${path}`;
+  const base = getDashboardApiBase();
+  const url = path.startsWith("http") ? path : `${base}${path.startsWith("/") ? "" : "/"}${path}`;
   const res = await fetch(url, { ...init, headers });
 
   if (res.status !== 401 || !canRetry) return res;
@@ -92,4 +96,4 @@ export async function apiJson<T>(path: string, init: RequestInit = {}): Promise<
   return { success: true, data: json.data as T };
 }
 
-export { API_URL, DASHBOARD_HEADERS };
+export { DASHBOARD_HEADERS };

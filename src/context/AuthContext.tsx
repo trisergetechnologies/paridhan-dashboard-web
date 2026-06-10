@@ -1,10 +1,9 @@
 "use client";
 
 import { apiFetch } from "@/lib/api/client";
+import { getDashboardApiBase } from "@/lib/apiBase";
 import { clearTokens, getAccessToken, getRefreshToken, setTokens } from "@/lib/api/sessionTokens";
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 export type DashboardRole = "admin" | "seller";
 
@@ -97,14 +96,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     password: string,
     requestedRole: DashboardRole,
   ) => {
-    const res = await fetch(`${API_URL}/auth/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Paridhan-Client": "dashboard",
-      },
-      body: JSON.stringify({ email, password, requestedRole }),
-    });
+    const apiBase = getDashboardApiBase();
+    if (!apiBase) {
+      throw new Error(
+        "API URL is not configured. Set NEXT_PUBLIC_API_URL (e.g. https://api.paridhanemporium.com/api/v1).",
+      );
+    }
+
+    let res: Response;
+    try {
+      res = await fetch(`${apiBase}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Paridhan-Client": "dashboard",
+        },
+        body: JSON.stringify({ email, password, requestedRole }),
+      });
+    } catch {
+      throw new Error(
+        `Cannot reach the API at ${apiBase}. Check that the gateway is running and NEXT_PUBLIC_API_URL is correct.`,
+      );
+    }
+
     const json = await res.json().catch(() => ({}));
     if (!res.ok || !json.success) {
       throw new Error(json.message || "Login failed");
