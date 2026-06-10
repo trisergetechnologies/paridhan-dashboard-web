@@ -126,6 +126,8 @@ export function ProductFormModal({
   const [color, setColor] = useState("");
   const [blouseIncluded, setBlouseIncluded] = useState(true);
   const [length, setLength] = useState("5.5m");
+  const [shippingUseDefault, setShippingUseDefault] = useState(true);
+  const [shippingCharge, setShippingCharge] = useState("");
   const [uploading, setUploading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [dragActive, setDragActive] = useState(false);
@@ -155,6 +157,8 @@ export function ProductFormModal({
       setColor("");
       setBlouseIncluded(true);
       setLength("5.5m");
+      setShippingUseDefault(true);
+      setShippingCharge("");
       return;
     }
     let cancelled = false;
@@ -190,6 +194,12 @@ export function ProductFormModal({
       setColor(d.color != null ? String(d.color) : "");
       setBlouseIncluded(d.blouseIncluded !== false);
       setLength(d.length != null ? String(d.length) : "5.5m");
+      setShippingUseDefault(d.shippingUseDefault !== false);
+      setShippingCharge(
+        d.shippingCharge != null && d.shippingUseDefault === false
+          ? String(d.shippingCharge)
+          : "",
+      );
     })();
     return () => {
       cancelled = true;
@@ -300,6 +310,11 @@ export function ProductFormModal({
       color: color.trim() || null,
       blouseIncluded,
       length: length.trim() || "5.5m",
+      shippingUseDefault,
+      shippingCharge:
+        !shippingUseDefault && shippingCharge.trim() !== ""
+          ? Number(shippingCharge)
+          : null,
     };
     const url = initial ? `/seller/products/${initial._id}` : "/seller/products";
     const res = await apiFetch(url, {
@@ -486,6 +501,39 @@ export function ProductFormModal({
               From MRP vs selling price: ~{calcDiscountFromMrp}% off — you can still set an explicit discount % for badges.
             </p>
           )}
+          <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 dark:border-slate-600 dark:bg-slate-900/40">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Delivery charge</p>
+            <p className="mt-1 text-xs text-slate-500">
+              Platform default: ₹80 delivery (free on orders above ₹999). Override for heavy or special sarees.
+            </p>
+            <label className="mt-3 flex cursor-pointer items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+              <input
+                type="checkbox"
+                checked={shippingUseDefault}
+                onChange={(e) => {
+                  setShippingUseDefault(e.target.checked);
+                  if (e.target.checked) setShippingCharge("");
+                }}
+                className="size-4 rounded border-slate-300"
+              />
+              Use platform default shipping
+            </label>
+            {!shippingUseDefault ? (
+              <label className="mt-3 block text-sm">
+                <span className="text-slate-700 dark:text-slate-300">Custom shipping charge (₹)</span>
+                <input
+                  type="number"
+                  min={0}
+                  step="1"
+                  value={shippingCharge}
+                  onChange={(e) => setShippingCharge(e.target.value)}
+                  required
+                  placeholder="e.g. 150"
+                  className="mt-1 w-full max-w-xs rounded-xl border border-slate-200 px-3 py-2.5 tabular-nums dark:border-slate-600 dark:bg-slate-950 dark:text-white"
+                />
+              </label>
+            ) : null}
+          </div>
         </section>
 
         <section className="space-y-3 rounded-2xl border border-slate-200/80 bg-white p-4 dark:border-slate-700 dark:bg-slate-950/40 sm:p-5">

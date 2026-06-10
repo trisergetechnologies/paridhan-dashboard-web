@@ -15,7 +15,15 @@ import { useAuth } from "@/context/AuthContext";
 import { apiFetch, apiJson } from "@/lib/api/client";
 import { useCallback, useEffect, useState } from "react";
 
-const ORDER_STATUSES = ["placed", "confirmed", "packed", "shipped", "delivered", "cancelled"] as const;
+const ORDER_STATUSES = [
+  "awaiting_payment",
+  "placed",
+  "confirmed",
+  "packed",
+  "shipped",
+  "delivered",
+  "cancelled",
+] as const;
 const PAYMENT_STATUSES = ["pending", "paid", "failed"] as const;
 
 type OrderRow = {
