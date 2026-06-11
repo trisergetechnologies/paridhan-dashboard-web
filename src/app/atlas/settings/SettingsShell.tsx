@@ -14,6 +14,7 @@ export default function SettingsShell({ children }: PropsWithChildren) {
   const links = isPlatformAdmin
     ? [
         { href: "/atlas/settings/website", label: "Website" },
+        { href: "/atlas/settings/product-fields", label: "Product fields" },
         { href: "/atlas/settings/password", label: "Change Password" },
       ]
     : [{ href: "/atlas/settings/password", label: "Change Password" }];

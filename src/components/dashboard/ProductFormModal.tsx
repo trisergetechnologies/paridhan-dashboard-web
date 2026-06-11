@@ -1,8 +1,13 @@
 "use client";
 
+import { ComboboxField } from "@/components/ui/ComboboxField";
 import { DashboardModal } from "@/components/ui/DashboardModal";
 import { apiFetch, apiJson } from "@/lib/api/client";
 import { type ProductImagePayload, uploadToImageKit } from "@/lib/imagekit-upload";
+import {
+  EMPTY_PRODUCT_FIELD_OPTIONS,
+  type ProductFieldOptionsMap,
+} from "@/lib/productFieldOptions";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 export type SellerProductRow = {
@@ -17,20 +22,6 @@ export type SellerProductRow = {
 };
 
 type Category = { _id: string; name: string; slug: string };
-
-const SAREE_FABRICS = ["Silk", "Cotton", "Georgette", "Organza", "Linen", "Chiffon", "Banarasi", "Kanjivaram"];
-const SAREE_COLORS = [
-  "Maroon",
-  "Gold",
-  "Red",
-  "Green",
-  "Navy",
-  "Pink",
-  "Ivory",
-  "Black",
-  "Peach",
-  "Royal Blue",
-];
 
 type VariantFormRow = {
   publicId: string;
@@ -126,11 +117,30 @@ export function ProductFormModal({
   const [color, setColor] = useState("");
   const [blouseIncluded, setBlouseIncluded] = useState(true);
   const [length, setLength] = useState("5.5m");
+  const [occasion, setOccasion] = useState("");
+  const [pattern, setPattern] = useState("");
+  const [fit, setFit] = useState("");
+  const [texture, setTexture] = useState("");
+  const [washCare, setWashCare] = useState("");
+  const [ironing, setIroning] = useState("");
+  const [storage, setStorage] = useState("");
   const [shippingUseDefault, setShippingUseDefault] = useState(true);
   const [shippingCharge, setShippingCharge] = useState("");
   const [uploading, setUploading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+  const [fieldOptions, setFieldOptions] = useState<ProductFieldOptionsMap>(EMPTY_PRODUCT_FIELD_OPTIONS);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const r = await apiJson<{ options: ProductFieldOptionsMap }>("/seller/product-field-options");
+      if (!cancelled && r.success && r.data?.options) setFieldOptions(r.data.options);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const calcDiscountFromMrp = useMemo(() => {
     const p = Number(price);
@@ -157,6 +167,13 @@ export function ProductFormModal({
       setColor("");
       setBlouseIncluded(true);
       setLength("5.5m");
+      setOccasion("");
+      setPattern("");
+      setFit("");
+      setTexture("");
+      setWashCare("");
+      setIroning("");
+      setStorage("");
       setShippingUseDefault(true);
       setShippingCharge("");
       return;
@@ -194,6 +211,13 @@ export function ProductFormModal({
       setColor(d.color != null ? String(d.color) : "");
       setBlouseIncluded(d.blouseIncluded !== false);
       setLength(d.length != null ? String(d.length) : "5.5m");
+      setOccasion(d.occasion != null ? String(d.occasion) : "");
+      setPattern(d.pattern != null ? String(d.pattern) : "");
+      setFit(d.fit != null ? String(d.fit) : "");
+      setTexture(d.texture != null ? String(d.texture) : "");
+      setWashCare(d.washCare != null ? String(d.washCare) : "");
+      setIroning(d.ironing != null ? String(d.ironing) : "");
+      setStorage(d.storage != null ? String(d.storage) : "");
       setShippingUseDefault(d.shippingUseDefault !== false);
       setShippingCharge(
         d.shippingCharge != null && d.shippingUseDefault === false
@@ -310,6 +334,13 @@ export function ProductFormModal({
       color: color.trim() || null,
       blouseIncluded,
       length: length.trim() || "5.5m",
+      occasion: occasion.trim() || null,
+      pattern: pattern.trim() || null,
+      fit: fit.trim() || null,
+      texture: texture.trim() || null,
+      washCare: washCare.trim() || null,
+      ironing: ironing.trim() || null,
+      storage: storage.trim() || null,
       shippingUseDefault,
       shippingCharge:
         !shippingUseDefault && shippingCharge.trim() !== ""
@@ -365,49 +396,35 @@ export function ProductFormModal({
         <section className="space-y-4 rounded-2xl border border-slate-200/80 bg-white p-4 dark:border-slate-700 dark:bg-slate-950/40 sm:p-5">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">Saree details</h3>
           <p className="text-xs text-slate-500">
-            Fabric, colour, and length appear on the product page and in search filters for customers.
+            Pick a suggestion or type your own. Options are managed by the platform admin under Settings → Product
+            fields.
           </p>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <label className="block text-sm">
-              <span className="text-slate-700 dark:text-slate-300">Fabric</span>
-              <input
-                list="saree-fabrics"
-                value={fabric}
-                onChange={(e) => setFabric(e.target.value)}
-                placeholder="e.g. Silk"
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 dark:border-slate-600 dark:bg-slate-950 dark:text-white"
-              />
-              <datalist id="saree-fabrics">
-                {SAREE_FABRICS.map((f) => (
-                  <option key={f} value={f} />
-                ))}
-              </datalist>
-            </label>
-            <label className="block text-sm">
-              <span className="text-slate-700 dark:text-slate-300">Colour</span>
-              <input
-                list="saree-colors"
-                value={color}
-                onChange={(e) => setColor(e.target.value)}
-                placeholder="e.g. Maroon"
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 dark:border-slate-600 dark:bg-slate-950 dark:text-white"
-              />
-              <datalist id="saree-colors">
-                {SAREE_COLORS.map((c) => (
-                  <option key={c} value={c} />
-                ))}
-              </datalist>
-            </label>
-            <label className="block text-sm">
-              <span className="text-slate-700 dark:text-slate-300">Saree length</span>
-              <input
-                value={length}
-                onChange={(e) => setLength(e.target.value)}
-                placeholder="5.5m"
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 dark:border-slate-600 dark:bg-slate-950 dark:text-white"
-              />
-            </label>
-            <label className="flex items-end gap-2 pb-2.5 text-sm text-slate-700 dark:text-slate-300">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <ComboboxField
+              label="Fabric"
+              listId="product-fabric"
+              value={fabric}
+              onChange={setFabric}
+              options={fieldOptions.fabric}
+              placeholder="e.g. Kanjivaram Silk"
+            />
+            <ComboboxField
+              label="Colour"
+              listId="product-color"
+              value={color}
+              onChange={setColor}
+              options={fieldOptions.color}
+              placeholder="e.g. Mustard Yellow"
+            />
+            <ComboboxField
+              label="Saree length"
+              listId="product-length"
+              value={length}
+              onChange={setLength}
+              options={fieldOptions.length}
+              placeholder="5.5m"
+            />
+            <label className="flex items-end gap-2 pb-2 text-sm text-slate-700 dark:text-slate-300 sm:col-span-2">
               <input
                 type="checkbox"
                 checked={blouseIncluded}
@@ -415,6 +432,73 @@ export function ProductFormModal({
               />
               Blouse piece included
             </label>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <ComboboxField
+              label="Occasion"
+              listId="product-occasion"
+              value={occasion}
+              onChange={setOccasion}
+              options={fieldOptions.occasion}
+              placeholder="e.g. Wedding"
+            />
+            <ComboboxField
+              label="Pattern"
+              listId="product-pattern"
+              value={pattern}
+              onChange={setPattern}
+              options={fieldOptions.pattern}
+              placeholder="e.g. Banarasi jacquard"
+            />
+            <ComboboxField
+              label="Fit / drape"
+              listId="product-fit"
+              value={fit}
+              onChange={setFit}
+              options={fieldOptions.fit}
+              placeholder="e.g. Ready to drape"
+            />
+          </div>
+        </section>
+
+        <section className="space-y-4 rounded-2xl border border-slate-200/80 bg-white p-4 dark:border-slate-700 dark:bg-slate-950/40 sm:p-5">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">Fabric &amp; care</h3>
+          <p className="text-xs text-slate-500">
+            Shown on the Fabric &amp; Care tab on the product page. Leave blank to hide a row.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <ComboboxField
+              label="Texture"
+              listId="product-texture"
+              value={texture}
+              onChange={setTexture}
+              options={fieldOptions.texture}
+              placeholder="e.g. Soft, premium finish"
+            />
+            <ComboboxField
+              label="Wash care"
+              listId="product-wash-care"
+              value={washCare}
+              onChange={setWashCare}
+              options={fieldOptions.washCare}
+              placeholder="e.g. Dry clean recommended"
+            />
+            <ComboboxField
+              label="Ironing"
+              listId="product-ironing"
+              value={ironing}
+              onChange={setIroning}
+              options={fieldOptions.ironing}
+              placeholder="e.g. Low heat on reverse"
+            />
+            <ComboboxField
+              label="Storage"
+              listId="product-storage"
+              value={storage}
+              onChange={setStorage}
+              options={fieldOptions.storage}
+              placeholder="e.g. Fold in muslin cloth"
+            />
           </div>
         </section>
 

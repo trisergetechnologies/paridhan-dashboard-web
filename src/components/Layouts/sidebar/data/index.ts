@@ -66,6 +66,7 @@ export function buildNavData(isPlatformAdmin: boolean): NavSection[] {
             icon: Icons.SettingsIcon,
             items: [
               { title: "Website", url: "/atlas/settings/website" },
+              { title: "Product fields", url: "/atlas/settings/product-fields" },
               { title: "Change password", url: "/atlas/settings/password" },
             ],
           },
