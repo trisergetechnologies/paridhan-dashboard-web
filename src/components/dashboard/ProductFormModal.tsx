@@ -128,6 +128,8 @@ export function ProductFormModal({
   const [shippingCharge, setShippingCharge] = useState("");
   const [uploading, setUploading] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(Boolean(initial));
+  const [detailError, setDetailError] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [fieldOptions, setFieldOptions] = useState<ProductFieldOptionsMap>(EMPTY_PRODUCT_FIELD_OPTIONS);
 
@@ -151,6 +153,8 @@ export function ProductFormModal({
 
   useEffect(() => {
     if (!initial) {
+      setDetailLoading(false);
+      setDetailError(null);
       setName("");
       setDescription("");
       setPrice("");
@@ -179,9 +183,16 @@ export function ProductFormModal({
       return;
     }
     let cancelled = false;
+    setDetailLoading(true);
+    setDetailError(null);
     (async () => {
       const r = await apiJson<Record<string, unknown>>(`/seller/products/${initial._id}`);
-      if (cancelled || !r.success) return;
+      if (cancelled) return;
+      if (!r.success) {
+        setDetailError(r.message || "Could not load product details");
+        setDetailLoading(false);
+        return;
+      }
       const d = r.data;
       setName(String(d.name ?? ""));
       setDescription(String(d.description ?? ""));
@@ -224,11 +235,12 @@ export function ProductFormModal({
           ? String(d.shippingCharge)
           : "",
       );
+      setDetailLoading(false);
     })();
     return () => {
       cancelled = true;
     };
-  }, [initial]);
+  }, [initial?._id]);
 
   const toggleCat = (id: string) => {
     setSelectedCats((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
@@ -370,6 +382,17 @@ export function ProductFormModal({
   return (
     <DashboardModal title={title} onClose={onClose} size="2xl">
       <form onSubmit={submit} className="space-y-6">
+        {initial && detailLoading ? (
+          <p className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+            Loading product details…
+          </p>
+        ) : null}
+        {detailError ? (
+          <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+            {detailError}
+          </p>
+        ) : null}
+
         <section className="space-y-4 rounded-2xl border border-slate-200/80 bg-white p-4 dark:border-slate-700 dark:bg-slate-950/40 sm:p-5">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">Basics</h3>
           <label className="block text-sm">
@@ -873,7 +896,7 @@ export function ProductFormModal({
           </button>
           <button
             type="submit"
-            disabled={busy}
+            disabled={busy || (Boolean(initial) && detailLoading)}
             className="rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm disabled:opacity-60"
           >
             {busy ? "Saving…" : initial ? "Save product" : "Create product"}
