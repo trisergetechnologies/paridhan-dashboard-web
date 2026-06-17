@@ -23,7 +23,7 @@ const ORDER_STATUSES = [
   "delivered",
   "cancelled",
 ] as const;
-const PAYMENT_STATUSES = ["pending", "paid", "failed"] as const;
+const PAYMENT_STATUSES = ["pending", "paid", "failed", "refund_pending", "refunded"] as const;
 
 type OrderRow = {
   _id: string;

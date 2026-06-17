@@ -56,6 +56,12 @@ export function buildNavData(isPlatformAdmin: boolean): NavSection[] {
             url: "/atlas/orders",
             items: [],
           },
+          {
+            title: "Returns",
+            icon: Icons.Table,
+            url: "/atlas/returns",
+            items: [],
+          },
         ],
       },
       {
