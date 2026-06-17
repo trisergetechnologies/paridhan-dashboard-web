@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import { StorefrontModeCard } from "../StorefrontModeCard";
+import { HeroBannerCard } from "../HeroBannerCard";
 
 export default function SettingsWebsitePage() {
   const { isPlatformAdmin, isAuthLoading } = useAuth();
@@ -30,7 +31,10 @@ export default function SettingsWebsitePage() {
   return (
     <>
       <Breadcrumb pageName="Website" />
-      <StorefrontModeCard />
+      <div className="space-y-6">
+        <HeroBannerCard />
+        <StorefrontModeCard />
+      </div>
     </>
   );
 }
